@@ -1,29 +1,19 @@
 class ReturnItem {
+  final int loanId;
   final int itemId;
   final int quantity;
-  final String condition;
 
   ReturnItem({
+    required this.loanId,
     required this.itemId,
     required this.quantity,
-    required this.condition,
   });
 
-  Map<String, dynamic> toJson() => {
-        'item_id': itemId,
-        'quantity': quantity,
-        'condition': condition,
-      };
-}
-
-class ReturnRequest {
-  final int loanId;
-  final List<ReturnItem> items;
-
-  ReturnRequest({required this.loanId, required this.items});
-
-  Map<String, dynamic> toJson() => {
-        'loan_id': loanId,
-        'items': items.map((item) => item.toJson()).toList(),
-      };
+  Map<String, dynamic> toJson() {
+    return {
+      'loan_id': loanId,
+      'item_id': itemId,
+      'quantity': quantity
+    };
+  }
 }

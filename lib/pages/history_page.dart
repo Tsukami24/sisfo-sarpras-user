@@ -4,6 +4,7 @@ import 'package:sisfo_sarpras_users/model/loan_model.dart';
 import 'package:sisfo_sarpras_users/model/return_model.dart';
 import 'package:sisfo_sarpras_users/Service/loan_service.dart';
 import 'package:sisfo_sarpras_users/Service/return_service.dart';
+import 'package:sisfo_sarpras_users/pages/return_page.dart';
 
 class LoanHistoryPage extends StatefulWidget {
   final LoanService loanService;
@@ -16,6 +17,10 @@ class LoanHistoryPage extends StatefulWidget {
 
 class _LoanHistoryPageState extends State<LoanHistoryPage> {
   late Future<List<LoanHistory>> futureLoanHistory;
+  Map<int, bool> _isReturning = {};
+  final formatRupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
+
+
 
   @override
   void initState() {
@@ -34,11 +39,11 @@ class _LoanHistoryPageState extends State<LoanHistoryPage> {
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'returned':
+      case 'dikembalikan':
         return Colors.green;
-      case 'pending':
+      case 'ditunda':
         return Colors.blueGrey;
-      case 'rejected':
+      case 'ditolak':
         return Colors.red;
       default:
         return Colors.orange;
@@ -86,25 +91,28 @@ class _LoanHistoryPageState extends State<LoanHistoryPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Tanggal Peminjaman: ${_formatDate(history.loanDate)}',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              if (history.returnDate != null &&
-                                  history.status != 'pending' &&
-                                  history.status != 'rejected')
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  'Tanggal Pengembalian: ${_formatDate(history.returnDate!)}',
+                                  'Tanggal Peminjaman: ${_formatDate(history.loanDate)}',
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
-
-                            ],
+                                if (history.returnDate != null &&
+                                    history.status != 'ditunda' &&
+                                    history.status != 'ditolak')
+                                  Text(
+                                    'Tanggal Pengembalian: ${_formatDate(history.returnDate!)}',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                              ],
+                            ),
                           ),
+
                           Container(
                             padding: EdgeInsets.symmetric(
                                 vertical: 6, horizontal: 12),
@@ -125,35 +133,47 @@ class _LoanHistoryPageState extends State<LoanHistoryPage> {
                         ],
                       ),
                       SizedBox(height: 12),
+
                       Text(
-                        history.status == 'returned' &&
+                        history.status == 'dikembalikan' &&
                                 history.returns.isNotEmpty
                             ? 'Detail Pengembalian:'
                             : 'Detail Peminjaman:',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       SizedBox(height: 8),
-                      if (history.status == 'returned' &&
+
+                      if (history.status == 'dikembalikan' &&
                           history.returns.isNotEmpty)
                         Column(
                           children: history.returns.map((ret) {
-                            return ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: Icon(Icons.assignment_return,
-                                  color: Colors.green),
-                              title: Text('${ret.itemName} (${ret.quantity}x)'),
-                              subtitle: Column(
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Kondisi: ${ret.condition}'),
-                                  Text('Denda: Rp ${ret.fine}'),
-                                  Text(
-                                    'Tanggal Dikembali: ${ret.returnedDate != null ? _formatDate(ret.returnedDate!) : '-'}',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  Icon(Icons.assignment_return,
+                                      color: Colors.green),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            '${ret.itemName} (${ret.quantity}x)',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                        Text('Kondisi: ${ret.condition}'),
+                                        Text('Denda: ${formatRupiah.format(ret.fine)}'),
+                                        Text(
+                                          'Tanggal Dikembali: ${ret.returnedDate != null ? _formatDate(ret.returnedDate!) : '-'}',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -163,54 +183,62 @@ class _LoanHistoryPageState extends State<LoanHistoryPage> {
                       else
                         Column(
                           children: history.items.map((item) {
-                            return ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: Icon(Icons.inventory_2,
-                                  color: Colors.blueAccent),
-                              title: Text('${item.name} (${item.quantity}x)'),
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(Icons.inventory_2,
+                                      color: Color.fromARGB(255, 0, 97, 215)),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      '${item.name} (${item.quantity}x)',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             );
                           }).toList(),
                         ),
                       SizedBox(height: 12),
-                      if (history.status != 'returned' &&
-                          history.status != 'pending' &&
-                          history.status != 'rejected')
+
+                      if (history.status != 'dikembalikan' &&
+                          history.status != 'ditunda' &&
+                          history.status != 'ditolak')
                         Align(
                           alignment: Alignment.centerRight,
                           child: ElevatedButton.icon(
-                            onPressed: () async {
-                              final returnService = ReturnService(
-                                  'http://127.0.0.1:8000/api');
-                              final success = await returnService.returnItems(
-                                history.id,
-                                history.items,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ReturnPage(
+                                    loan: history,
+                                    returnService: ReturnService(
+                                      'http://127.0.0.1:8000/api',
+                                    ),
+                                  ),
+                                ),
                               );
-
-                              if (success) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text('Pengembalian berhasil diajukan')),
-                                );
-                                setState(() {
-                                  futureLoanHistory =
-                                      widget.loanService.getLoanHistory();
-                                });
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Pengembalian gagal diajukan')),
-                                );
-                              }
                             },
-
-                            icon: Icon(Icons.keyboard_return),
-                            label: Text('Kembalikan',style: TextStyle(
-                              color: Colors.white
-                            )),
+                            icon: Icon(Icons.assignment_return_outlined,
+                                size: 18),
+                            label: Flexible(
+                              child: Text(
+                                'Kembalikan',
+                                style: TextStyle(color: Colors.white),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Color.fromARGB(255, 0, 97, 215),
                               iconColor: Colors.white,
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20)),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
                               padding: EdgeInsets.symmetric(
                                   vertical: 12, horizontal: 20),
                             ),

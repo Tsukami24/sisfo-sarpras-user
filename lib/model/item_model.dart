@@ -5,7 +5,7 @@
     final int stock;
     final int total;
     final String image_url;
-    // final String categoryName;
+    final String categoryName;
 
     Item({
       required this.id,
@@ -14,7 +14,7 @@
       required this.stock,
       required this.total,
       required this.image_url,
-      // required this.categoryName,
+      required this.categoryName,
     });
 
     factory Item.fromJson(Map<String, dynamic> json) {
@@ -25,7 +25,7 @@
         stock: int.tryParse(json['stock'].toString()) ?? 0,
         total: int.tryParse(json['total'].toString()) ?? 0,
         image_url: json['image_url'] ?? '',
-        // categoryName: json['category']?['name'] ?? '-',
+        categoryName: json['category']?['name'] ?? '-',
       );
     }
 

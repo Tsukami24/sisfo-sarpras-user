@@ -10,6 +10,7 @@ class LoanService {
   Future<Map<String, dynamic>?> postLoan({
     required int userId,
     required String loanDate,
+    required String reason,
     required List<LoanItem> items,
   }) async {
     final prefs = await SharedPreferences.getInstance();
@@ -26,6 +27,7 @@ class LoanService {
       body: jsonEncode({
         'user_id': userId,
         'loan_date': loanDate,
+        'reason': reason,
         'items': items.map((item) => item.toJson()).toList(),
       }),
     );
@@ -36,9 +38,17 @@ class LoanService {
   }
 
   Future<List<Map<String, dynamic>>> getItems() async {
-    final response = await http.get(Uri.parse('$baseUrl/item'));
-    if (response.statusCode != 200)
-      throw Exception('Gagal memuat daftar barang');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null) throw Exception('Token tidak ditemukan');
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/item'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
 
     final List<dynamic> data = jsonDecode(response.body);
     return data

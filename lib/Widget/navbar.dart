@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:sisfo_sarpras_users/pages/home_page.dart';
-import 'package:sisfo_sarpras_users/pages/loan_page.dart';
-import 'package:sisfo_sarpras_users/Service/loan_service.dart';
 import 'package:sisfo_sarpras_users/pages/history_page.dart';
+import 'package:sisfo_sarpras_users/Service/loan_service.dart';
 
 class NavBarWidget extends StatefulWidget {
   @override
   _NavBarWidgetState createState() => _NavBarWidgetState();
 }
-
 
 class _NavBarWidgetState extends State<NavBarWidget> {
   int _currentIndex = 0;
@@ -21,15 +19,23 @@ class _NavBarWidgetState extends State<NavBarWidget> {
     loanService = LoanService(baseUrl: 'http://127.0.0.1:8000/api');
     _children = [
       HomePage(),
-      LoanPage(loanService: loanService),
-      LoanHistoryPage(loanService: loanService)
+      Container(), 
+      LoanHistoryPage(loanService: loanService),
     ];
   }
 
   void onBarTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    if (index == 1) {
+      Navigator.pushNamed(
+        context,
+        '/loan',
+        arguments: null, 
+      );
+    } else {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
   }
 
   @override
@@ -47,7 +53,7 @@ class _NavBarWidgetState extends State<NavBarWidget> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home, size: screenWidth * 0.06),
-            label: 'Home',
+            label: 'Beranda',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_box, size: screenWidth * 0.06),
@@ -55,7 +61,7 @@ class _NavBarWidgetState extends State<NavBarWidget> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.history_outlined, size: screenWidth * 0.06),
-            label: 'History',
+            label: 'Riwayat',
           ),
         ],
         selectedLabelStyle: TextStyle(fontSize: screenHeight * 0.02),

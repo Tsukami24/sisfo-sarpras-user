@@ -13,14 +13,13 @@ class LoanItem {
     return LoanItem(
       id: int.tryParse(json['id'].toString()) ?? 0,
       name: json['name'] ?? '',
-      quantity: json['pivot'] != null ? json['pivot']['quantity'] ?? 0 : 0,
+      quantity: json['pivot'] != null ? json['pivot']['quantity'] ?? 1 : 1,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'name': name,
       'quantity': quantity,
     };
   }
@@ -48,7 +47,7 @@ class ReturnDetail {
       itemId: int.tryParse(json['item_id'].toString()) ?? 0,
       itemName: json['item']?['name'] ?? '',
       quantity: int.tryParse(json['quantity'].toString()) ?? 0,
-      condition: json['condition'] ?? 'good',
+      condition: json['condition'] ?? 'baik',
       fine: ((double.tryParse(json['fine'].toString()) ?? 0.0).round()),
       returnedDate: json['returned_date'] ?? '',
     );
@@ -56,12 +55,12 @@ class ReturnDetail {
 }
 
 
-
 class LoanHistory {
   final int id;
   final int userId;
   final String loanDate;
   final String returnDate;
+  final String reason;
   final String status;
   final List<LoanItem> items;
   final List<ReturnDetail> returns;
@@ -71,6 +70,7 @@ class LoanHistory {
   required this.userId,
   required this.loanDate,
   required this.returnDate,
+  required this.reason,
   required this.status,
   required this.items,
   required this.returns,
@@ -82,6 +82,7 @@ factory LoanHistory.fromJson(Map<String, dynamic> json) {
     userId: int.tryParse(json['user_id'].toString()) ?? 0,
     loanDate: json['loan_date'] ?? '',
     returnDate: json['return_date'] ?? '',
+    reason: json['reason'] ?? '',
     status: json['status'] ?? '',
     items: (json['items'] as List)
         .map((item) => LoanItem.fromJson(item))

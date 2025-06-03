@@ -4,6 +4,7 @@ import 'package:sisfo_sarpras_users/Service/item_service.dart';
 import 'package:sisfo_sarpras_users/model/item_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:sisfo_sarpras_users/pages/detail_page.dart';
+import 'package:sisfo_sarpras_users/model/loan_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,6 +18,9 @@ class _HomePageState extends State<HomePage> {
   final itemService = ItemService();
   Map<String, dynamic>? user;
   List<Item>? items;
+  List<Item>? filteredItems;
+  String selectedCategory = 'Semua';
+  List<String> categories = ['Semua'];
 
   @override
   void initState() {
@@ -38,14 +42,52 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> fetchItems() async {
     final fetchedItems = await ItemService.getItems();
+    final fetchedCategories = await ItemService.getCategories();
+
     setState(() {
       items = fetchedItems;
+      filteredItems = fetchedItems;
+      categories = ['Semua', ...fetchedCategories];
     });
   }
 
   void handleLogout() async {
-    await authService.logout();
-    Navigator.pushReplacementNamed(context, '/login');
+    final confirmLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi Keluar'),
+        content: const Text('Apakah Anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Ya, Keluar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmLogout == true) {
+      await authService.logout();
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
+
+
+  void _searchItem(String query) {
+    final lowerQuery = query.toLowerCase();
+    final filtered = items!
+        .where((item) =>
+            item.name.toLowerCase().contains(lowerQuery) ||
+            item.categoryName.toLowerCase().contains(lowerQuery))
+        .toList();
+
+    setState(() {
+      filteredItems = filtered;
+    });
   }
 
   @override
@@ -53,12 +95,13 @@ class _HomePageState extends State<HomePage> {
     final isLoading = user == null || items == null;
 
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Beranda',
-            style: TextStyle(color: Colors.white)),
-        backgroundColor: Color.fromARGB(255, 0, 97, 215),
+        title: const Text('Beranda', style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color.fromARGB(255, 0, 97, 215),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
       ),
       drawer: isLoading
           ? null
@@ -66,38 +109,16 @@ class _HomePageState extends State<HomePage> {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  DrawerHeader(
+                  UserAccountsDrawerHeader(
+                    accountName: Text(user!['name'],
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    accountEmail: Text(user!['class']),
                     decoration: BoxDecoration(
                       color: const Color.fromARGB(255, 0, 97, 215),
                     ),
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            user!['name'],
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 1),
-                          Text(
-                            user!['class'],
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.logout),
+                    leading: Icon(Icons.logout, color: Colors.red),
                     title: Text('Logout'),
                     onTap: handleLogout,
                   ),
@@ -105,95 +126,169 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Halo, ${user!['name']}",
-                      style: TextStyle(fontSize: 22)),
-                  SizedBox(height: 10),
-                  Text("Selamat datang di aplikasi Anda!",
-                      style: TextStyle(color: Colors.green)),
-                  SizedBox(height: 30),
-                  Text("Daftar Item:",
+                  
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: TextField(
+                          onChanged: _searchItem,
+                          decoration: InputDecoration(
+                            hintText: 'Cari barang...',
+                            prefixIcon: const Icon(Icons.search),
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 12),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 1,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.shade200,
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: selectedCategory,
+                              isExpanded: true,
+                              items: categories
+                                  .map((category) => DropdownMenuItem(
+                                        value: category,
+                                        child: Text(category),
+                                      ))
+                                  .toList(),
+                              onChanged: (value) {
+                                if (value == null) return;
+                                setState(() {
+                                  selectedCategory = value;
+                                  if (value == 'Semua') {
+                                    filteredItems = items;
+                                  } else {
+                                    filteredItems = items!
+                                        .where((item) =>
+                                            item.categoryName == value)
+                                        .toList();
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  const Text("Daftar Item:",
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 12),
+
                   Expanded(
                     child: GridView.builder(
-                      itemCount: items!.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      itemCount: filteredItems!.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         mainAxisSpacing: 16,
                         crossAxisSpacing: 16,
-                        childAspectRatio: 0.75,
+                        childAspectRatio: 0.7,
                       ),
                       itemBuilder: (context, index) {
-                        final item = items![index];
-                        return Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 4,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                        final item = filteredItems![index];
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => DetailPage(item: item)),
+                            );
+                            if (result != null && result is LoanItem) {
+                              Navigator.pushNamed(context, '/loan');
+                            }
+                          },
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 4,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(16)),
                                     child: CachedNetworkImage(
                                       imageUrl: item.image_url,
                                       fit: BoxFit.cover,
                                       width: double.infinity,
-                                      placeholder: (context, url) => Center(
-                                          child: CircularProgressIndicator()),
+                                      placeholder: (context, url) =>
+                                          const Center(
+                                              child:
+                                                  CircularProgressIndicator()),
                                       errorWidget: (context, url, error) =>
-                                          Icon(Icons.broken_image),
+                                          const Icon(Icons.broken_image),
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 8),
-                                Text(
-                                  item.name,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  'Stock: ${item.stock}',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color:
-                                        const Color.fromARGB(255, 0, 97, 215),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.name,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text('Stok: ${item.stock}',
+                                          style: const TextStyle(
+                                              color: const Color.fromARGB(
+                                                  255, 0, 97, 215),
+                                              fontWeight: FontWeight.bold)),
+                                      Text('Kategori: ${item.categoryName}',
+                                          style: const TextStyle(
+                                              color: const Color.fromARGB(
+                                                  255, 0, 97, 215))),
+                                      const SizedBox(height: 4),
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Icon(Icons.info,
+                                            color: const Color.fromARGB(
+                                                255, 0, 97, 215)),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                SizedBox(height: 4),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: IconButton(
-                                    icon: Icon(
-                                      Icons.add_circle,
-                                      color:
-                                          const Color.fromARGB(255, 0, 97, 215),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              DetailPage(item: item),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                )
                               ],
                             ),
                           ),
