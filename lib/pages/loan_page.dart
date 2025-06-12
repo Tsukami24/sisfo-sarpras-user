@@ -114,7 +114,8 @@ class _LoanPageState extends State<LoanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Formulir Peminjaman',style: TextStyle(color: Colors.white)),
+        title: const Text('Formulir Peminjaman',style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+            )),
         backgroundColor: Color.fromARGB(255, 0, 97, 215),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -159,9 +160,9 @@ class _LoanPageState extends State<LoanPage> {
                       decoration: _inputDecoration(
                           'Tanggal sekarang', Icons.calendar_today),
                       style: const TextStyle(
-                          color: Colors.black), // warna teks aktif
+                          color: Colors.black), 
                       enableInteractiveSelection:
-                          false, // agar tidak bisa diseleksi
+                          false, 
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -172,7 +173,7 @@ class _LoanPageState extends State<LoanPage> {
                       decoration:
                           _inputDecoration('Jam sekarang', Icons.access_time),
                       style: const TextStyle(
-                          color: Colors.black), // warna teks aktif
+                          color: Colors.black), 
                       enableInteractiveSelection: false,
                     ),
                   ),

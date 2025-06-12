@@ -35,6 +35,7 @@ class LoanService {
     return (response.statusCode == 200 || response.statusCode == 201)
         ? jsonDecode(response.body)
         : null;
+        
   }
 
   Future<List<Map<String, dynamic>>> getItems() async {
@@ -68,9 +69,6 @@ Future<List<LoanHistory>> getLoanHistory() async {
         'Accept': 'application/json',
       },
     );
-
-    print('Status Code: ${response.statusCode}');
-    print('Response Body: ${response.body}');
 
     if (response.statusCode != 200) {
       throw Exception('Gagal memuat data pinjaman');

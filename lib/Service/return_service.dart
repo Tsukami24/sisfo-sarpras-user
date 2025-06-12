@@ -26,6 +26,9 @@ class ReturnService {
       }),
     );
 
+    print('Status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
     if (response.statusCode == 200) {
       return true;
     } else {

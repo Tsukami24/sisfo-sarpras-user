@@ -14,7 +14,7 @@ class DetailPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(item.name, style: TextStyle(color: Colors.white)),
+        title: Text('Detail', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,)),
         backgroundColor: const Color.fromARGB(255, 0, 97, 215),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),

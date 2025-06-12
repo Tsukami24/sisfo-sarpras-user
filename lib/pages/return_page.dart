@@ -41,7 +41,7 @@ class _ReturnPageState extends State<ReturnPage> {
         ),
       );
 
-      if (shouldReturn != true) return; // Jika user tekan "Tidak", hentikan
+      if (shouldReturn != true) return; 
 
       final loan = widget.loan;
       List<ReturnItem> itemsToReturn = loan.items.map((item) {
@@ -107,86 +107,82 @@ class _ReturnPageState extends State<ReturnPage> {
     return Scaffold(
       appBar: AppBar(
         title:
-            Text('Pengembalian Barang', style: TextStyle(color: Colors.white)),
+            Text('Pengembalian Barang', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,)),
         backgroundColor: Color.fromARGB(255, 0, 97, 215),
         iconTheme: IconThemeData(color: Colors.white),
       ),
 
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              Text(
-                'Tanggal Peminjaman',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text(formattedDate),
-              SizedBox(height: 20),
-
-              Text(
-                'Daftar Barang Dipinjam',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              SizedBox(height: 10),
-              ...loan.items.map((item) {
-                return Card(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  elevation: 2,
-                  child: ListTile(
-                    leading: Icon(Icons.inventory_2, color: Color.fromARGB(255, 0, 97, 215)),
-                    title: Text(item.name,
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text('Jumlah: ${item.quantity}'),
+  padding: const EdgeInsets.all(16.0),
+  child: Form(
+    key: _formKey,
+    child: SingleChildScrollView(
+      child: Column(
+        children: [
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tanggal Peminjaman',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                );
-              }).toList(),
-              SizedBox(height: 20),
-
-              // Info Peminjaman
-              Text(
-                'Informasi Peminjaman',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              SizedBox(height: 10),
-              Card(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                color: Colors.grey[100],
-                elevation: 0,
-                child: ListTile(
-                  leading: Icon(Icons.assignment, color: Colors.orange),
-                  title: Text('Peminjaman Ke ${loan.id}'),
-                  subtitle: Text('Status: ${loan.status}'),
-                ),
-              ),
-              SizedBox(height: 30),
-
-              if (loan.status != 'returned')
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton.icon(
-                    onPressed: _returnItem,
-                    icon: Icon(Icons.assignment_return_outlined,color: Colors.white),
-                    label: Text('Kembalikan Barang', style: TextStyle(color: Colors.white),),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 0, 97, 215),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
+                  SizedBox(height: 4),
+                  Text(formattedDate),
+                  Divider(height: 24),
+                  Text(
+                    'Daftar Barang Dipinjam',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  SizedBox(height: 8),
+                  ...loan.items.map((item) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Row(
+                        children: [
+                          Icon(Icons.inventory_2, color: Color.fromARGB(255, 0, 97, 215)),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text('${item.name} (Jumlah: ${item.quantity})'),
+                          ),
+                        ],
                       ),
-                      textStyle:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-            ],
+                    );
+                  }).toList(),
+                ],
+              ),
+            ),
           ),
-        ),
+
+          SizedBox(height: 24),
+
+          if (loan.status != 'returned')
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: _returnItem,
+                icon: Icon(Icons.assignment_return_outlined, color: Colors.white),
+                label: Text('Kembalikan Barang', style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 0, 97, 215),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+        ],
       ),
-    );
+    ),
+  ),
+));
   }
 }

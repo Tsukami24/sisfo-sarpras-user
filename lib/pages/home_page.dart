@@ -76,7 +76,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-
   void _searchItem(String query) {
     final lowerQuery = query.toLowerCase();
     final filtered = items!
@@ -97,7 +96,11 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Beranda', style: TextStyle(color: Colors.white)),
+        title: const Text('Beranda',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            )),
         backgroundColor: const Color.fromARGB(255, 0, 97, 215),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -132,7 +135,6 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  
                   Row(
                     children: [
                       Expanded(
@@ -200,12 +202,10 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                   const SizedBox(height: 16),
-
                   const Text("Daftar Item:",
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
-
                   Expanded(
                     child: GridView.builder(
                       itemCount: filteredItems!.length,
@@ -235,58 +235,89 @@ class _HomePageState extends State<HomePage> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             elevation: 4,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            child: Stack(
                               children: [
-                                Expanded(
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(16)),
-                                    child: CachedNetworkImage(
-                                      imageUrl: item.image_url,
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      placeholder: (context, url) =>
-                                          const Center(
-                                              child:
-                                                  CircularProgressIndicator()),
-                                      errorWidget: (context, url, error) =>
-                                          const Icon(Icons.broken_image),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: ClipRRect(
+                                        borderRadius:
+                                            const BorderRadius.vertical(
+                                                top: Radius.circular(16)),
+                                        child: CachedNetworkImage(
+                                          imageUrl: item.image_url,
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          placeholder: (context, url) =>
+                                              const Center(
+                                                  child:
+                                                      CircularProgressIndicator()),
+                                          errorWidget: (context, url, error) =>
+                                              const Icon(Icons.broken_image),
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            item.name,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text('Kategori: ${item.categoryName}',
+                                              style: const TextStyle(
+                                                color: Color.fromARGB(
+                                                    255, 0, 97, 215),
+                                                fontWeight: FontWeight.bold,
+                                              )),
+                                          const SizedBox(height: 4),
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Color.fromARGB(
+                                                    255, 0, 97, 215),
+                                              ),
+                                              padding: const EdgeInsets.all(6),
+                                              child: Icon(
+                                                Icons.arrow_forward,
+                                                size: 16,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item.name,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.8),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      'Stok: ${item.stock}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color.fromARGB(255, 0, 97, 215),
                                       ),
-                                      const SizedBox(height: 4),
-                                      Text('Stok: ${item.stock}',
-                                          style: const TextStyle(
-                                              color: const Color.fromARGB(
-                                                  255, 0, 97, 215),
-                                              fontWeight: FontWeight.bold)),
-                                      Text('Kategori: ${item.categoryName}',
-                                          style: const TextStyle(
-                                              color: const Color.fromARGB(
-                                                  255, 0, 97, 215))),
-                                      const SizedBox(height: 4),
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Icon(Icons.info,
-                                            color: const Color.fromARGB(
-                                                255, 0, 97, 215)),
-                                      ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ],

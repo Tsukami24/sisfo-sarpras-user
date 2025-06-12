@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sisfo_sarpras_users/model/loan_model.dart';
-import 'package:sisfo_sarpras_users/model/return_model.dart';
 import 'package:sisfo_sarpras_users/Service/loan_service.dart';
 import 'package:sisfo_sarpras_users/Service/return_service.dart';
 import 'package:sisfo_sarpras_users/pages/return_page.dart';
@@ -19,8 +18,6 @@ class _LoanHistoryPageState extends State<LoanHistoryPage> {
   late Future<List<LoanHistory>> futureLoanHistory;
   Map<int, bool> _isReturning = {};
   final formatRupiah = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
-
-
 
   @override
   void initState() {
@@ -55,7 +52,8 @@ class _LoanHistoryPageState extends State<LoanHistoryPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Peminjaman',
-            style: TextStyle(color: Colors.white)),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+            )),
         backgroundColor: Color.fromARGB(255, 0, 97, 215),
         centerTitle: true,
       ),
@@ -162,7 +160,7 @@ class _LoanHistoryPageState extends State<LoanHistoryPage> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                            '${ret.itemName} (${ret.quantity}x)',
+                                            '${(ret.itemName == null || ret.itemName.isEmpty) ? 'unknown' : ret.itemName} (${ret.quantity}x)',
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold)),
                                         Text('Kondisi: ${ret.condition}'),
@@ -193,7 +191,7 @@ class _LoanHistoryPageState extends State<LoanHistoryPage> {
                                   SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
-                                      '${item.name} (${item.quantity}x)',
+                                      '${(item.name == null || item.name.isEmpty) ? 'unknown' : item.name} (${item.quantity}x)',
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
